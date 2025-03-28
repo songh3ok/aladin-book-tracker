@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오류 - 알라딘 신간 도서 트래커</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>오류가 발생했습니다</h1>
+        </div>
+    </header>
+
+    <section class="error-section">
+        <div class="container">
+            <div class="error-message">
+                <h2>죄송합니다. 오류가 발생했습니다.</h2>
+                <p>{{ error }}</p>
+                <a href="/" class="book-link">홈으로 돌아가기</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 알라딘 신간 도서 트래커. 모든 도서 정보는 <a href="https://www.aladin.co.kr" target="_blank">알라딘</a>에서 제공됩니다.</p>
+        </div>
+    </footer>
+</body>
+</html>

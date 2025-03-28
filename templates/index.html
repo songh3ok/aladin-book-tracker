@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알라딘 신간 도서 트래커</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>알라딘 신간 도서 트래커</h1>
+            <p class="subtitle">매주 월요일과 목요일에 업데이트되는 알라딘 신간 도서 정보</p>
+            <p class="last-update">마지막 업데이트: {{ last_update }}</p>
+            
+            <div class="date-selector">
+                <label for="dateSelect">과거 추천 도서 보기:</label>
+                <select id="dateSelect" onchange="changeDate(this.value)">
+                    {% for date in available_dates %}
+                    <option value="{{ date }}" {% if date == current_date %}selected{% endif %}>{{ date }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <section class="featured-books">
+        <div class="container">
+            <h2>주목할만한 책 목록</h2>
+            <div class="featured-books-list">
+                <table class="books-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>제목</th>
+                            <th>저자</th>
+                            <th>출판사</th>
+                            <th>가격</th>
+                            <th>출판일</th>
+                            <th>분야</th>
+                            <th>상세정보</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in featured_books %}
+                        <tr class="book-item">
+                            <td>{{ loop.index }}</td>
+                            <td class="book-title">{{ book.title }}</td>
+                            <td class="book-author">{{ book.author }}</td>
+                            <td class="book-publisher">{{ book.publisher }}</td>
+                            <td class="book-price">{{ book.price }}</td>
+                            <td class="book-pub-date">{{ book.pub_date }}</td>
+                            <td class="book-categories">{{ book.categories|join(', ') }}</td>
+                            <td><a href="{{ book.book_url }}" class="book-link" target="_blank">자세히 보기</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="all-books">
+        <div class="container">
+            <h2>모든 신간 도서</h2>
+            <div class="books-filter">
+                <input type="text" id="searchInput" placeholder="책 제목, 저자, 출판사로 검색...">
+                <select id="sortSelect">
+                    <option value="title">제목순</option>
+                    <option value="author">저자순</option>
+                    <option value="publisher">출판사순</option>
+                    <option value="pub_date">출간일순</option>
+                </select>
+            </div>
+            <div class="books-grid">
+                {% for book in all_books %}
+                <div class="book-card">
+                    <div class="book-image">
+                        <img src="{{ book.img_url }}" alt="{{ book.title }}">
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">{{ book.title }}</h3>
+                        <p class="book-author">{{ book.author }}</p>
+                        <p class="book-publisher">{{ book.publisher }}</p>
+                        <p class="book-price">{{ book.price }}</p>
+                        <a href="{{ book.book_url }}" class="book-link" target="_blank">자세히 보기</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="no-results" style="display: none;">
+                <p>검색 결과가 없습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="container">
+            <h2>이 사이트에 대하여</h2>
+            <p>이 웹사이트는 알라딘 온라인 서점의 신간 도서 정보를 매주 월요일과 목요일에 자동으로 수집하여 제공합니다. 특히 주목할만한 책 5권을 선정하여 상세 정보와 함께 소개합니다.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 알라딘 신간 도서 트래커. 모든 도서 정보는 <a href="https://www.aladin.co.kr" target="_blank">알라딘</a>에서 제공됩니다.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
