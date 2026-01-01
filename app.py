@@ -7,7 +7,17 @@ import logging
 import glob
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
-from scraper import scrape_aladin_new_books, get_latest_books, get_latest_interesting_books
+
+# Vercel 환경 감지
+IS_VERCEL = os.environ.get('VERCEL', False) or os.environ.get('VERCEL_ENV', False)
+
+# Vercel이 아닐 때만 scraper 함수 import
+if not IS_VERCEL:
+    try:
+        from scraper import scrape_aladin_new_books, get_latest_books, get_latest_interesting_books
+    except ImportError:
+        logger.warning("scraper 모듈을 import할 수 없습니다. 읽기 전용 모드로 실행됩니다.")
+        IS_VERCEL = True
 
 # 로깅 설정
 logging.basicConfig(
@@ -26,6 +36,40 @@ os.makedirs(DATA_DIR, exist_ok=True)
 
 # Flask 앱 초기화
 app = Flask(__name__)
+
+def get_latest_books():
+    """
+    가장 최근 week 파일에서 모든 책 데이터를 가져옵니다.
+    """
+    try:
+        files = glob.glob(os.path.join(DATA_DIR, "week_*.json"))
+        if not files:
+            logger.warning("week 파일을 찾을 수 없습니다.")
+            return []
+
+        latest_file = max(files)
+        with open(latest_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"최신 책 데이터 가져오기 실패: {e}")
+        return []
+
+def get_latest_interesting_books():
+    """
+    가장 최근 interesting_week 파일에서 주목할만한 책 데이터를 가져옵니다.
+    """
+    try:
+        files = glob.glob(os.path.join(DATA_DIR, "interesting_week_*.json"))
+        if not files:
+            logger.warning("interesting_week 파일을 찾을 수 없습니다.")
+            return []
+
+        latest_file = max(files)
+        with open(latest_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"최신 주목할만한 책 데이터 가져오기 실패: {e}")
+        return []
 
 def get_available_weeks():
     """
@@ -106,10 +150,18 @@ def index():
             all_books = get_latest_books()
             featured_books = get_latest_interesting_books()
 
-            # 데이터가 없으면 스크래핑 실행
-            if not all_books or not featured_books:
+            # Vercel 환경이 아니고 데이터가 없으면 스크래핑 실행
+            if not IS_VERCEL and (not all_books or not featured_books):
                 logger.info("데이터가 없어 스크래핑을 실행합니다.")
-                all_books, featured_books = scrape_aladin_new_books()
+                try:
+                    all_books, featured_books = scrape_aladin_new_books()
+                except Exception as e:
+                    logger.error(f"스크래핑 중 오류 발생: {e}")
+                    # 빈 리스트로 계속 진행
+                    if not all_books:
+                        all_books = []
+                    if not featured_books:
+                        featured_books = []
 
             # 마지막 업데이트 시간 계산
             last_update = "데이터 없음"
@@ -163,8 +215,14 @@ def index():
 @app.route('/refresh')
 def refresh_data():
     """
-    데이터 수동 새로고침 API
+    데이터 수동 새로고침 API (Vercel 환경에서는 비활성화)
     """
+    if IS_VERCEL:
+        return jsonify({
+            "success": False,
+            "message": "Vercel 환경에서는 스크래핑이 비활성화되어 있습니다. 로컬에서 scraper.py를 실행하고 데이터를 GitHub에 업로드해주세요."
+        }), 403
+
     try:
         all_books, featured_books = scrape_aladin_new_books()
         return jsonify({
@@ -204,16 +262,17 @@ def api_featured():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    # 초기 데이터가 없으면 스크래핑 실행
-    try:
-        all_books = get_latest_books()
-        featured_books = get_latest_interesting_books()
-        
-        if not all_books or not featured_books:
-            logger.info("초기 데이터가 없어 스크래핑을 실행합니다.")
-            scrape_aladin_new_books()
-    except Exception as e:
-        logger.error(f"초기 데이터 확인 중 오류 발생: {e}")
-    
+    # Vercel이 아닐 때만 초기 데이터 확인 및 스크래핑 실행
+    if not IS_VERCEL:
+        try:
+            all_books = get_latest_books()
+            featured_books = get_latest_interesting_books()
+
+            if not all_books or not featured_books:
+                logger.info("초기 데이터가 없어 스크래핑을 실행합니다.")
+                scrape_aladin_new_books()
+        except Exception as e:
+            logger.error(f"초기 데이터 확인 중 오류 발생: {e}")
+
     # 앱 실행
     app.run(host='0.0.0.0', port=5000, debug=True)
