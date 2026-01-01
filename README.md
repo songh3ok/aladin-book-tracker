@@ -2,6 +2,8 @@
 
 이 프로젝트는 알라딘 온라인 서점에서 신간 도서 정보를 자동으로 수집하고, 주목할만한 책을 선정하여 보여주는 웹 애플리케이션입니다.
 
+**🌐 Live Demo**: [https://aladin-book-tracker-ak6m.vercel.app](https://aladin-book-tracker-ak6m.vercel.app)
+
 ## 주요 기능
 
 1. **자동 데이터 수집**: 매주 월요일과 목요일에 알라딘 온라인 서점에서 신간 도서 정보를 자동으로 수집합니다.
@@ -35,7 +37,7 @@ aladin_book_tracker/
 
 1. 저장소 클론
 ```bash
-git clone https://github.com/yourusername/aladin-book-tracker.git
+git clone https://github.com/songh3ok/aladin-book-tracker.git
 cd aladin-book-tracker
 ```
 
@@ -67,6 +69,7 @@ python scheduler.py
 - **Frontend**: HTML, CSS, JavaScript
 - **Web Scraping**: BeautifulSoup4, Requests
 - **Scheduling**: Schedule
+- **Deployment**: Vercel
 
 ## 책 정보 추출 로직
 
