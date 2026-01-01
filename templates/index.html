@@ -14,12 +14,26 @@
             <p class="subtitle">매주 월요일과 목요일에 업데이트되는 알라딘 신간 도서 정보</p>
             <p class="last-update">마지막 업데이트: {{ last_update }}</p>
             
-            <div class="date-selector">
-                <label for="dateSelect">과거 추천 도서 보기:</label>
-                <select id="dateSelect" onchange="changeDate(this.value)">
-                    {% for date in available_dates %}
-                    <option value="{{ date }}" {% if date == current_date %}selected{% endif %}>{{ date }}</option>
+            <div class="week-selector">
+                <label for="yearSelect">연도:</label>
+                <select id="yearSelect" onchange="changeWeek()">
+                    {% for year in available_weeks.keys()|sort(reverse=True) %}
+                    <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}년</option>
                     {% endfor %}
+                </select>
+
+                <label for="weekSelect">주차:</label>
+                <select id="weekSelect" onchange="changeWeek()">
+                    {% if selected_year in available_weeks %}
+                        {% for week in range(1, 53) %}
+                        <option value="{{ week }}"
+                                {% if week == selected_week %}selected{% endif %}
+                                {% if week not in available_weeks[selected_year] and (selected_year > current_year or (selected_year == current_year and week > current_week)) %}disabled{% endif %}>
+                            {{ week }}주차
+                            {% if week not in available_weeks[selected_year] %}(데이터 없음){% endif %}
+                        </option>
+                        {% endfor %}
+                    {% endif %}
                 </select>
             </div>
         </div>

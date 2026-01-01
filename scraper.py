@@ -289,24 +289,43 @@ def scrape_aladin_new_books():
                 continue
         
         logger.info(f"총 {len(books)}권의 책 정보 추출 완료")
-        
-        # 결과 저장
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        filename = os.path.join(DATA_DIR, f"aladin_new_books_{today}.json")
-        
+
+        # 결과 저장 - 주차 기반
+        now = datetime.datetime.now()
+        year, week, _ = now.isocalendar()  # ISO 8601 주차
+
+        # 파일명: week_2025_W01.json 형식
+        filename = os.path.join(DATA_DIR, f"week_{year}_W{week:02d}.json")
+
+        # 기존 데이터가 있으면 병합
+        existing_books = []
+        if os.path.exists(filename):
+            try:
+                with open(filename, 'r', encoding='utf-8') as f:
+                    existing_books = json.load(f)
+                logger.info(f"기존 데이터 {len(existing_books)}권 발견")
+            except:
+                logger.warning("기존 파일을 읽을 수 없어 새로 생성합니다")
+
+        # 중복 제거 (ISBN 또는 제목 기준)
+        existing_titles = {book.get('title', '') for book in existing_books}
+        new_books = [book for book in books if book.get('title', '') not in existing_titles]
+
+        # 병합
+        all_books = existing_books + new_books
+
         with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(books, f, ensure_ascii=False, indent=2)
-        
-        logger.info(f"책 정보 저장 완료: {filename}")
-        
-        # 가장 흥미로운 책 30권 선정 (여기서는 간단히 처리)
-        # 실제로는 더 복잡한 알고리즘을 적용할 수 있음
-        interesting_books = select_interesting_books(books, 30)
-        
-        interesting_filename = os.path.join(DATA_DIR, f"interesting_books_{today}.json")
+            json.dump(all_books, f, ensure_ascii=False, indent=2)
+
+        logger.info(f"책 정보 저장 완료: {filename} (기존 {len(existing_books)}권 + 신규 {len(new_books)}권)")
+
+        # 가장 흥미로운 책 30권 선정 (전체 병합된 데이터에서)
+        interesting_books = select_interesting_books(all_books, 30)
+
+        interesting_filename = os.path.join(DATA_DIR, f"interesting_week_{year}_W{week:02d}.json")
         with open(interesting_filename, 'w', encoding='utf-8') as f:
             json.dump(interesting_books, f, ensure_ascii=False, indent=2)
-        
+
         logger.info(f"주목할만한 책 30권 저장 완료: {interesting_filename}")
         
         return books, interesting_books
@@ -376,17 +395,17 @@ def get_latest_books():
     가장 최근에 스크래핑한 책 정보를 가져옵니다.
     """
     try:
-        files = [f for f in os.listdir(DATA_DIR) if f.startswith("aladin_new_books_")]
+        files = [f for f in os.listdir(DATA_DIR) if f.startswith("week_") and not f.startswith("interesting_")]
         if not files:
             return []
-        
-        # 가장 최근 파일 찾기
+
+        # 가장 최근 파일 찾기 (week_2025_W01.json 형식)
         latest_file = max(files)
         file_path = os.path.join(DATA_DIR, latest_file)
-        
+
         with open(file_path, 'r', encoding='utf-8') as f:
             books = json.load(f)
-        
+
         return books
     except Exception as e:
         logger.error(f"최근 책 정보 가져오기 실패: {e}")
@@ -397,17 +416,17 @@ def get_latest_interesting_books():
     가장 최근에 선정된 흥미로운 책 30권을 가져옵니다.
     """
     try:
-        files = [f for f in os.listdir(DATA_DIR) if f.startswith("interesting_books_")]
+        files = [f for f in os.listdir(DATA_DIR) if f.startswith("interesting_week_")]
         if not files:
             return []
-        
-        # 가장 최근 파일 찾기
+
+        # 가장 최근 파일 찾기 (interesting_week_2025_W01.json 형식)
         latest_file = max(files)
         file_path = os.path.join(DATA_DIR, latest_file)
-        
+
         with open(file_path, 'r', encoding='utf-8') as f:
             books = json.load(f)
-        
+
         return books
     except Exception as e:
         logger.error(f"최근 흥미로운 책 정보 가져오기 실패: {e}")

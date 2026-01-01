@@ -27,50 +27,60 @@ os.makedirs(DATA_DIR, exist_ok=True)
 # Flask 앱 초기화
 app = Flask(__name__)
 
-def get_available_dates():
+def get_available_weeks():
     """
-    사용 가능한 모든 데이터 날짜를 가져옵니다.
+    사용 가능한 모든 주차 데이터를 가져옵니다.
+    Returns: {year: [weeks]} 형식의 딕셔너리
     """
     try:
-        # 모든 interesting_books 파일 찾기
-        files = glob.glob(os.path.join(DATA_DIR, "interesting_books_*.json"))
-        
-        # 파일명에서 날짜 추출 (interesting_books_YYYY-MM-DD.json)
-        dates = []
+        # 모든 interesting_week 파일 찾기
+        files = glob.glob(os.path.join(DATA_DIR, "interesting_week_*.json"))
+
+        # 파일명에서 연도와 주차 추출 (interesting_week_2025_W01.json)
+        weeks_by_year = {}
         for file in files:
             filename = os.path.basename(file)
-            date_str = filename.replace("interesting_books_", "").replace(".json", "")
-            dates.append(date_str)
-        
-        # 날짜 내림차순 정렬 (최신순)
-        dates.sort(reverse=True)
-        return dates
-    except Exception as e:
-        logger.error(f"날짜 목록 가져오기 실패: {e}")
-        return []
+            # interesting_week_2025_W01.json → 2025, 01
+            parts = filename.replace("interesting_week_", "").replace(".json", "").split("_")
+            if len(parts) == 2:
+                year = int(parts[0])
+                week = int(parts[1].replace("W", ""))
 
-def get_books_by_date(date_str):
+                if year not in weeks_by_year:
+                    weeks_by_year[year] = []
+                weeks_by_year[year].append(week)
+
+        # 각 연도별로 주차 정렬
+        for year in weeks_by_year:
+            weeks_by_year[year].sort(reverse=True)  # 최신 주차가 먼저
+
+        return weeks_by_year
+    except Exception as e:
+        logger.error(f"주차 목록 가져오기 실패: {e}")
+        return {}
+
+def get_books_by_week(year, week):
     """
-    특정 날짜의 책 데이터를 가져옵니다.
+    특정 연도/주차의 책 데이터를 가져옵니다.
     """
     try:
-        all_books_file = os.path.join(DATA_DIR, f"aladin_new_books_{date_str}.json")
-        featured_books_file = os.path.join(DATA_DIR, f"interesting_books_{date_str}.json")
-        
+        all_books_file = os.path.join(DATA_DIR, f"week_{year}_W{week:02d}.json")
+        featured_books_file = os.path.join(DATA_DIR, f"interesting_week_{year}_W{week:02d}.json")
+
         all_books = []
         featured_books = []
-        
+
         if os.path.exists(all_books_file):
             with open(all_books_file, 'r', encoding='utf-8') as f:
                 all_books = json.load(f)
-        
+
         if os.path.exists(featured_books_file):
             with open(featured_books_file, 'r', encoding='utf-8') as f:
                 featured_books = json.load(f)
-        
+
         return all_books, featured_books
     except Exception as e:
-        logger.error(f"{date_str} 날짜의 책 데이터 가져오기 실패: {e}")
+        logger.error(f"{year}년 {week}주차의 책 데이터 가져오기 실패: {e}")
         return [], []
 
 @app.route('/')
@@ -79,23 +89,28 @@ def index():
     메인 페이지 렌더링
     """
     try:
-        # 날짜 파라미터 확인
-        date_str = request.args.get('date', None)
-        
-        # 사용 가능한 모든 날짜 가져오기
-        available_dates = get_available_dates()
-        
-        # 데이터가 없거나 날짜가 지정되지 않은 경우 최신 데이터 사용
-        if not available_dates or not date_str:
+        # 연도와 주차 파라미터 확인
+        year_param = request.args.get('year', None)
+        week_param = request.args.get('week', None)
+
+        # 사용 가능한 모든 주차 가져오기
+        available_weeks = get_available_weeks()
+
+        # 현재 연도와 주차
+        now = datetime.now()
+        current_year, current_week, _ = now.isocalendar()
+
+        # 파라미터가 없으면 최신 데이터 사용
+        if not year_param or not week_param:
             # 최신 도서 데이터 가져오기
             all_books = get_latest_books()
             featured_books = get_latest_interesting_books()
-            
+
             # 데이터가 없으면 스크래핑 실행
             if not all_books or not featured_books:
                 logger.info("데이터가 없어 스크래핑을 실행합니다.")
                 all_books, featured_books = scrape_aladin_new_books()
-            
+
             # 마지막 업데이트 시간 계산
             last_update = "데이터 없음"
             if all_books and len(all_books) > 0:
@@ -103,35 +118,44 @@ def index():
                     last_update = all_books[0]['scrape_date']
                 else:
                     # 파일 수정 시간으로 대체
-                    files = [f for f in os.listdir(DATA_DIR) if f.startswith("aladin_new_books_")]
+                    files = [f for f in os.listdir(DATA_DIR) if f.startswith("week_")]
                     if files:
                         latest_file = max(files)
                         file_path = os.path.join(DATA_DIR, latest_file)
                         last_update = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime("%Y-%m-%d %H:%M:%S")
-            
-            # 날짜가 지정되지 않았으면 최신 날짜 사용
-            if available_dates:
-                current_date = available_dates[0]
-            else:
-                current_date = datetime.now().strftime("%Y-%m-%d")
+
+            # 사용할 연도와 주차 결정
+            selected_year = current_year
+            selected_week = current_week
+            if available_weeks:
+                # 가장 최근 연도
+                latest_year = max(available_weeks.keys())
+                selected_year = latest_year
+                # 해당 연도의 가장 최근 주차
+                if available_weeks[latest_year]:
+                    selected_week = max(available_weeks[latest_year])
         else:
-            # 지정된 날짜의 데이터 가져오기
-            all_books, featured_books = get_books_by_date(date_str)
-            current_date = date_str
-            
+            # 지정된 연도/주차의 데이터 가져오기
+            selected_year = int(year_param)
+            selected_week = int(week_param)
+            all_books, featured_books = get_books_by_week(selected_year, selected_week)
+
             # 마지막 업데이트 시간
             if all_books and len(all_books) > 0 and 'scrape_date' in all_books[0]:
                 last_update = all_books[0]['scrape_date']
             else:
-                last_update = f"{date_str} 데이터"
-        
-        return render_template('index.html', 
-                              all_books=all_books, 
-                              featured_books=featured_books, 
+                last_update = f"{selected_year}년 {selected_week}주차 데이터"
+
+        return render_template('index.html',
+                              all_books=all_books,
+                              featured_books=featured_books,
                               last_update=last_update,
-                              current_date=current_date,
-                              available_dates=available_dates)
-    
+                              selected_year=selected_year,
+                              selected_week=selected_week,
+                              current_year=current_year,
+                              current_week=current_week,
+                              available_weeks=available_weeks)
+
     except Exception as e:
         logger.error(f"메인 페이지 렌더링 중 오류 발생: {e}")
         return render_template('error.html', error=str(e))

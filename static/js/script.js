@@ -92,20 +92,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 날짜 선택 시 페이지 이동 또는 데이터 로드 함수
-function changeDate(date) {
-    if (!date) return;
-    
-    // 정적 HTML 버전에서는 날짜 선택 시 알림 표시
+// 주차 선택 시 페이지 이동 또는 데이터 로드 함수
+function changeWeek() {
+    const yearSelect = document.getElementById('yearSelect');
+    const weekSelect = document.getElementById('weekSelect');
+
+    if (!yearSelect || !weekSelect) return;
+
+    const year = yearSelect.value;
+    const week = weekSelect.value;
+
+    // 정적 HTML 버전에서는 주차 선택 시 알림 표시
     if (window.location.protocol === 'file:' || !window.location.search) {
         // 정적 HTML 파일에서 실행 중인 경우
-        alert(`선택하신 날짜(${date})의 추천 도서를 표시합니다.\n\n참고: 정적 HTML 버전에서는 실제 데이터가 변경되지 않습니다. 전체 기능을 사용하려면 Flask 애플리케이션을 실행해주세요.`);
-        document.querySelector('.last-update').textContent = `마지막 업데이트: ${date}`;
+        alert(`선택하신 ${year}년 ${week}주차의 추천 도서를 표시합니다.\n\n참고: 정적 HTML 버전에서는 실제 데이터가 변경되지 않습니다. 전체 기능을 사용하려면 Flask 애플리케이션을 실행해주세요.`);
+        document.querySelector('.last-update').textContent = `마지막 업데이트: ${year}년 ${week}주차`;
         return;
     }
-    
+
     // Flask 애플리케이션에서는 실제 데이터 로드
-    window.location.href = `/?date=${date}`;
+    window.location.href = `/?year=${year}&week=${week}`;
 }
 
 // 페이지 로드 시 애니메이션 효과
