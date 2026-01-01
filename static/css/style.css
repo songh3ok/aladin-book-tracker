@@ -1,4 +1,22 @@
-/* 기본 스타일 리셋 */
+/* 기본 스타일 리셋 및 변수 정의 */
+:root {
+    --primary-color: #4A90E2;
+    --primary-dark: #357ABD;
+    --secondary-color: #50C878;
+    --accent-color: #FF6B6B;
+    --text-dark: #2C3E50;
+    --text-light: #7F8C8D;
+    --bg-light: #F8F9FA;
+    --bg-white: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,314 +24,522 @@
 }
 
 body {
-    font-family: 'Noto Sans KR', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', 'Helvetica', 'Arial', sans-serif;
+    line-height: 1.7;
+    color: var(--text-dark);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
 }
 
-/* 헤더 스타일 */
+/* 헤더 스타일 - 현대적인 그라디언트 */
 header {
-    background-color: #1f8ce6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 40px 0;
+    padding: 60px 0 40px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') bottom center no-repeat;
+    background-size: cover;
+    opacity: 0.5;
+}
+
+header > * {
+    position: relative;
+    z-index: 1;
 }
 
 header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 header .subtitle {
-    font-size: 1.2rem;
-    margin-bottom: 5px;
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    font-weight: 300;
+    opacity: 0.95;
 }
 
 header .last-update {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 15px;
+    font-size: 0.95rem;
+    opacity: 0.85;
+    margin-bottom: 24px;
+    font-weight: 300;
 }
 
-.date-selector {
-    margin-top: 20px;
-    background-color: rgba(255, 255, 255, 0.2);
-    padding: 10px 15px;
-    border-radius: 5px;
-    display: inline-block;
+/* 주차 선택기 스타일 */
+.week-selector {
+    margin-top: 24px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    gap: 16px;
+    align-items: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.date-selector label {
-    margin-right: 10px;
-    font-weight: bold;
+.week-selector label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
 }
 
-.date-selector select {
-    padding: 5px 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    background-color: white;
-    font-size: 0.9rem;
+.week-selector select {
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.95);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: var(--transition);
+    outline: none;
+    min-width: 120px;
+}
+
+.week-selector select:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: white;
+}
+
+.week-selector select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(80, 200, 120, 0.2);
 }
 
 /* 주목할만한 책 목록 섹션 */
 .featured-books {
-    padding: 60px 0;
-    background-color: white;
+    padding: 80px 0;
+    background: var(--bg-white);
 }
 
 .featured-books h2 {
     text-align: center;
-    margin-bottom: 40px;
-    font-size: 2rem;
-    color: #1f8ce6;
+    margin-bottom: 48px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .featured-books-list {
-    margin-top: 30px;
+    margin-top: 32px;
     overflow-x: auto;
 }
 
 .books-table {
     width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-white);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
     overflow: hidden;
 }
 
 .books-table thead {
-    background-color: #1f8ce6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 
-.books-table th, 
+.books-table th,
 .books-table td {
-    padding: 12px 15px;
+    padding: 16px 20px;
     text-align: left;
-    border-bottom: 1px solid #eee;
-}
-
-.books-table tbody tr {
-    transition: background-color 0.3s ease;
-}
-
-.books-table tbody tr:hover {
-    background-color: #f5f5f5;
 }
 
 .books-table th {
-    font-weight: bold;
+    font-weight: 600;
     text-transform: uppercase;
     font-size: 0.85rem;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+}
+
+.books-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: var(--transition);
+}
+
+.books-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    transform: translateX(4px);
+}
+
+.books-table tbody tr:last-child {
+    border-bottom: none;
 }
 
 .book-item {
     opacity: 0;
-    animation: fadeIn 0.5s forwards;
+    animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-@keyframes fadeIn {
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
 .book-title {
-    font-weight: bold;
-    color: #333;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.95rem;
 }
 
-.book-author, .book-publisher {
-    color: #666;
+.book-author,
+.book-publisher {
+    color: var(--text-light);
+    font-size: 0.9rem;
 }
 
 .book-price {
-    color: #e74c3c;
-    font-weight: bold;
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 0.95rem;
 }
 
 .book-categories {
-    color: #1f8ce6;
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.book-categories::before {
+    content: '🏷️ ';
 }
 
 .book-link {
     display: inline-block;
-    background-color: #1f8ce6;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
     color: white;
-    padding: 6px 12px;
-    border-radius: 5px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
     text-decoration: none;
     font-size: 0.85rem;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    transition: var(--transition);
     text-align: center;
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
 }
 
 .book-link:hover {
-    background-color: #1a7ac5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
 }
 
 /* 모든 신간 도서 섹션 */
 .all-books {
-    padding: 60px 0;
-    background-color: #f8f9fa;
+    padding: 80px 0;
+    background: var(--bg-light);
 }
 
 .all-books h2 {
     text-align: center;
-    margin-bottom: 40px;
-    font-size: 2rem;
-    color: #1f8ce6;
+    margin-bottom: 48px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .books-filter {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
+    gap: 16px;
+    margin-bottom: 40px;
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
 #searchInput {
     flex-grow: 1;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-sm);
     font-size: 1rem;
-    margin-right: 15px;
+    transition: var(--transition);
+    outline: none;
+}
+
+#searchInput:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 #sortSelect {
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-sm);
     font-size: 1rem;
-    background-color: white;
+    background: white;
+    cursor: pointer;
+    transition: var(--transition);
+    outline: none;
+    min-width: 150px;
+}
+
+#sortSelect:hover {
+    border-color: var(--primary-color);
 }
 
 .books-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px;
 }
 
 .book-card {
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-    background-color: white;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    background: white;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.book-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+.book-card .book-image {
+    height: 280px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.book-card .book-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.book-card:hover .book-image img {
+    transform: scale(1.05);
+}
+
+.book-card .book-info {
+    padding: 20px;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
 }
 
-.book-card:hover {
-    transform: translateY(-5px);
-}
-
-.book-card .book-image {
-    height: 200px;
-}
-
-.book-card .book-info {
-    padding: 15px;
-}
-
 .book-card .book-title {
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.book-card .book-author,
+.book-card .book-publisher {
+    margin: 4px 0;
+}
+
+.book-card .book-price {
+    margin-top: auto;
+    padding-top: 12px;
     font-size: 1.1rem;
+}
+
+.book-card .book-link {
+    margin-top: 16px;
+    width: 100%;
 }
 
 .no-results {
     text-align: center;
-    padding: 40px 0;
-    font-size: 1.2rem;
-    color: #666;
+    padding: 60px 0;
+    font-size: 1.3rem;
+    color: var(--text-light);
 }
 
 /* 사이트 소개 섹션 */
 .about {
-    padding: 60px 0;
-    background-color: white;
+    padding: 80px 0;
+    background: white;
     text-align: center;
 }
 
 .about h2 {
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: #1f8ce6;
+    margin-bottom: 24px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
 }
 
 .about p {
     max-width: 800px;
     margin: 0 auto;
-    font-size: 1.1rem;
-    color: #666;
+    font-size: 1.15rem;
+    color: var(--text-light);
+    line-height: 1.8;
 }
 
 /* 푸터 스타일 */
 footer {
-    background-color: #333;
+    background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
     color: white;
-    padding: 30px 0;
+    padding: 40px 0;
     text-align: center;
 }
 
+footer p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
 footer a {
-    color: #1f8ce6;
+    color: var(--secondary-color);
     text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
 }
 
 footer a:hover {
+    color: #6FDC8C;
     text-decoration: underline;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-    .books-table {
-        font-size: 0.9rem;
+    header h1 {
+        font-size: 2.25rem;
     }
-    
-    .books-table th, 
-    .books-table td {
-        padding: 8px 10px;
+
+    .week-selector {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
     }
-    
+
+    .week-selector select {
+        width: 100%;
+    }
+
     .books-filter {
         flex-direction: column;
     }
-    
-    #searchInput {
-        margin-right: 0;
-        margin-bottom: 10px;
+
+    .books-table {
+        font-size: 0.85rem;
     }
-    
-    header h1 {
+
+    .books-table th,
+    .books-table td {
+        padding: 12px 14px;
+    }
+
+    .books-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .featured-books h2,
+    .all-books h2 {
         font-size: 2rem;
     }
 }
 
 @media (max-width: 480px) {
+    header h1 {
+        font-size: 1.85rem;
+    }
+
+    header .subtitle {
+        font-size: 1.05rem;
+    }
+
     .books-table {
         font-size: 0.8rem;
     }
-    
-    .books-table th, 
+
+    .books-table th,
     .books-table td {
-        padding: 6px 8px;
+        padding: 10px 12px;
     }
-    
-    header h1 {
-        font-size: 1.8rem;
+
+    .featured-books h2,
+    .all-books h2,
+    .about h2 {
+        font-size: 1.75rem;
     }
-    
-    .featured-books h2, .all-books h2, .about h2 {
-        font-size: 1.5rem;
+
+    .container {
+        padding: 0 16px;
     }
+}
+
+/* 스크롤 애니메이션 */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+section {
+    animation: fadeInScale 0.6s ease-out;
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
 }
