@@ -10,6 +10,7 @@ import re
 from bs4 import BeautifulSoup
 import time
 import random
+import sys  # ← 이 줄 추가
 
 # 로깅 설정
 logging.basicConfig(
